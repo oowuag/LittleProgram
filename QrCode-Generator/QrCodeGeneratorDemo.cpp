@@ -33,13 +33,6 @@
 #include "QrCode.hpp"
 
 
-// Function prototypes
-static void doBasicDemo();
-static void printQr(const qrcodegen::QrCode &qr);
-static bool writeQrBMP(const qrcodegen::QrCode &qr, int boarder);
-
-
-
 //	-------------------------------------------------------
 //	DEFines
 //	-------------------------------------------------------
@@ -90,27 +83,8 @@ typedef struct
 //	-------------------------------------------------------
 
 
-// The main application program.
-int main() {
-	doBasicDemo();
-	return EXIT_SUCCESS;
-}
-
-// Creates a single QR Code, then prints it to the console.
-static void doBasicDemo()
-{
-    const char *text = QRCODE_TEXT;  // User-supplied text
-	const qrcodegen::QrCode::Ecc &errCorLvl = qrcodegen::QrCode::Ecc::LOW;  // Error correction level
-	
-	// Make and print the QR Code symbol
-	const qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(text, errCorLvl);
-
-   int border = 4;
-    writeQrBMP(qr, border);
-}
-
 // Prints the given QR Code to the console.
-static void printQr(const qrcodegen::QrCode &qr)
+void printQr(const qrcodegen::QrCode &qr)
 {
 	int border = 4;
 	for (int y = -border; y < qr.size + border; y++) {
@@ -121,7 +95,7 @@ static void printQr(const qrcodegen::QrCode &qr)
 	}
 }
 
-static bool writeQrBMP(const qrcodegen::QrCode &qr, int boarder)
+bool writeQrBMP(const qrcodegen::QrCode &qr, int boarder)
 {
     unsigned int unWidth = qr.size + boarder * 2;
     unsigned int unWidthAdjusted = unWidth * OUT_FILE_PIXEL_PRESCALER * 3;
@@ -199,4 +173,45 @@ static bool writeQrBMP(const qrcodegen::QrCode &qr, int boarder)
     delete[] pRGBData;
 
     return true;
+}
+
+bool writeQrSVG(const qrcodegen::QrCode &qr, int boarder)
+{
+    std::string svgStr = qr.toSvgString(boarder);
+    // Output the bmp file
+    FILE* f = NULL;
+    if (!(fopen_s(&f, "test.svg", "wb"))) {
+        fwrite(svgStr.c_str(), sizeof(unsigned char), svgStr.size(), f);
+        fclose(f);
+    }
+    else {
+        printf("Unable to open file");
+        return false;
+    }
+
+    return true;
+}
+
+
+
+// Creates a single QR Code, then prints it to the console.
+void doBasicDemo()
+{
+    const char *text = QRCODE_TEXT;  // User-supplied text
+    const qrcodegen::QrCode::Ecc &errCorLvl = qrcodegen::QrCode::Ecc::LOW;  // Error correction level
+
+    // Make and print the QR Code symbol
+    const qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(text, errCorLvl);
+
+    int border = 4;
+    writeQrBMP(qr, border);
+    writeQrSVG(qr, border);
+}
+
+
+// The main application program.
+int main()
+{
+    doBasicDemo();
+    return EXIT_SUCCESS;
 }
