@@ -1,0 +1,98 @@
+/*
+* chardev.c: Creates a read−only char device that says how many times
+* you've read from the dev file
+*/
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/fs.h>
+#include <linux/semaphore.h>
+#include <linux/sched.h> 
+
+// my_driver.c
+MODULE_LICENSE("GPL");
+
+static ssize_t my_driver_read(struct file *filp, char *buf, size_t len, loff_t *off);
+static ssize_t my_driver_write(struct file *filp, const char *buf, size_t len,loff_t *off);
+
+// 定义自己的操作类型
+struct file_operations my_driver_fops =
+ {
+     read: 
+         my_driver_read,
+     write: 
+         my_driver_write,
+ };
+
+static int my_ver = 0;
+static struct semaphore sem;  
+static wait_queue_head_t outq; 
+static int flag = 0;
+static int MAJOR_NUM = 0;
+
+// 初始化文件设备
+static int __init my_driver_init(void)
+{
+ int ret = 0;
+ MAJOR_NUM = register_chrdev(0, "my_driver", &my_driver_fops);
+ if (ret) {
+  printk("my_driver register failure\n");
+ } else {
+  printk("my_driver register success :%d\n", MAJOR_NUM);
+  sema_init(&sem, 1);
+  init_waitqueue_head(&outq);
+ }
+
+ return ret;
+}
+
+// 退出设备操作
+static void __exit my_driver_exit(void)
+{
+ int ret;
+ unregister_chrdev(MAJOR_NUM, "my_driver");
+
+ if (ret)
+  printk("my_driver unregister failure\n");
+ else
+  printk("my_driver unregister success\n");
+}
+
+// 读取设备文件
+static ssize_t my_driver_read(struct file *filp, char *buf, size_t len, loff_t *off)
+{
+ if (wait_event_interruptible(outq, flag != 0)) 
+  return -ERESTARTSYS;
+
+ if(down_interruptible(&sem))
+  return -ERESTARTSYS;
+
+ flag = 0;
+ if (copy_to_user(buf, &my_ver, sizeof(int))) {
+  up(&sem);
+  return - EFAULT;
+ }
+
+ up(&sem);
+ return sizeof(int);
+}
+
+// 写设备文件
+static ssize_t my_driver_write(struct file *filp, const char *buf, size_t len,loff_t *off)
+{
+ if (down_interruptible(&sem))
+  return - ERESTARTSYS;
+
+ if (copy_from_user(&my_ver, buf, sizeof(int))) {
+  up(&sem);
+  return - EFAULT;
+ }
+
+ up(&sem);
+ flag = 1;
+ wake_up_interruptible(&outq);
+ return sizeof(int);
+}
+
+// 自定义模块的加载与卸载
+module_init(my_driver_init);
+module_exit(my_driver_exit);
