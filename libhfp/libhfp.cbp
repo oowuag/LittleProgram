@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libhfp" />
+		<Option makefile_is_custom="1" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/hfstandalone-test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="84:8E:0C:24:73:29" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<MakeCommands>
+					<Build command="$make -f $makefile " />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile " />
+					<SilentBuild command="$make -f $makefile  &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/libhfp" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="Makefile" />
+		<Unit filename="Makefile-exe" />
+		<Unit filename="Makefile-lib" />
+		<Unit filename="bt.cpp" />
+		<Unit filename="events-indep.cpp" />
+		<Unit filename="events.cpp" />
+		<Unit filename="hfp.cpp" />
+		<Unit filename="hfstandalone-test.cpp" />
+		<Unit filename="libhfp/bt.h" />
+		<Unit filename="libhfp/events-indep.h" />
+		<Unit filename="libhfp/events.h" />
+		<Unit filename="libhfp/hfp.h" />
+		<Unit filename="libhfp/list.h" />
+		<Unit filename="libhfp/rfcomm.h" />
+		<Unit filename="libhfp/soundio-buf.h" />
+		<Unit filename="libhfp/soundio.h" />
+		<Unit filename="oplatency.h" />
+		<Unit filename="rfcomm.cpp" />
+		<Unit filename="soundio-alsa.cpp" />
+		<Unit filename="soundio-manager.cpp" />
+		<Unit filename="soundio-oss.cpp" />
+		<Unit filename="soundio-pump.cpp" />
+		<Unit filename="soundio-util.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
